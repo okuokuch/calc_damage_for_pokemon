@@ -1,0 +1,6 @@
+﻿move_type,wheather_name,factor
+any,any,4096
+炎,にほんばれ,6144
+水,にほんばれ,2048
+水,あめ,6144
+炎,あめ,2048

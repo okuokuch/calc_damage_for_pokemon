@@ -1,0 +1,2 @@
+﻿atk_ability,atk_friend_ability,def_ability,def_friend_ability,atk_item,def_item,def_has_item,atk_poke,atk_poke_has_flied,def_poke_has_flied,move_name,move_type,move_category,is_additional_effects,is_biting,is_contact,is_pulse,is_punching,is_recoil,is_sound,atk_ailment,def_ailment,field_name,weather_name,barrier,is_fully_evolved,is_type_effective,is_ability_effective,is_move_effective,is_double,is_critical,is_dynamax,factor
+any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,4096

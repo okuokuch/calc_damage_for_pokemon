@@ -1,0 +1,14 @@
+﻿def_ability,def_item,def_poke,move_category,def_ailment,field_name,is_fully_evolved,factor_b,factor_d
+any,any,any,any,any,any,any,4096,4096
+フラワーギフト,any,any,any,any,any,any,4096,6144
+ふしぎなうろこ,any,any,any,やけど,any,any,6144,4096
+ふしぎなうろこ,any,any,any,どく,any,any,6144,4096
+ふしぎなうろこ,any,any,any,もうどく,any,any,6144,4096
+ふしぎなうろこ,any,any,any,まひ,any,any,6144,4096
+ふしぎなうろこ,any,any,any,ねむり,any,any,6144,4096
+くさのけがわ,any,any,any,any,グラスフィールド,any,6144,4096
+ファーコート,any,any,物理,any,any,any,8192,4096
+any,しんかのきせき,any,any,any,any,FALSE,6144,6144
+any,とつげきチョッキ,any,any,any,any,any,4096,6144
+any,しんかいのウロコ,パールル,any,any,any,any,4096,8192
+any,メタルパウダー,メタモン,any,any,any,any,8192,4096
