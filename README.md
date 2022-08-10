@@ -1,15 +1,16 @@
 # ダメージ計算プログラム
-ポケモンのダメージ計算を行うプログラムです。Pythonで作成しています。
+ポケモンのダメージ計算を行うプログラムです。Pythonで作成しています。  
 未完成ですが、根幹部分はできています。(2022/8/10)
 
 ## 開発環境
-python 3.9.12
-パッケージ管理:Anaconda
+python 3.9.12  
+パッケージ管理:Anaconda  
 pandas以外のモジュールを用いていないので、その他環境でも動くと思います。
 
 # 使用方法
-calc_damage.pyとassetフォルダ内のcsvファイルを利用します。
-Jupyter Notebookに実際に使用した例を記述しているので、こちらをご覧ください。
+calc_damage.pyとassetフォルダ内のcsvファイルを利用します。  
+Jupyter Notebookに実際に使用した例を記述しているので、こちらをご覧ください。  
+https://github.com/okuokuch/calc_damage_for_pokemon/blob/main/calc_test.ipynb
 
 # クラス図
 プログラムのおおよその内容です。
