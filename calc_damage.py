@@ -253,8 +253,16 @@ class Move(OperateDataFrme):
                 #!!変化技の場合や、固定威力がない技(アシパやジャイロボール)の場合int型への変換でエラーが出る。
                 #!!特殊な技の計算は空いた能力にも依存するケースが多いので、CalcDamgeクラスに条件を記述する。
                 self.type = self.extract_info(self.move_info_df, 'type')
-                self.power = int(self.extract_info(self.move_info_df, 'power'))
-                self.power_dynamax = int(self.extract_info(self.move_info_df, 'power_dynamax'))
+                power = self.extract_info(self.move_info_df, 'power')
+                if type(power) == int:
+                    self.power = int(power)
+                else:
+                    self.power = 0
+                power_dynamax = self.extract_info(self.move_info_df, 'power_dynamax')
+                if type(power_dynamax) == int:
+                    self.power_dynamax = power_dynamax
+                else:
+                    self.power_dynamax = 0
                 self.category = self.extract_info(self.move_info_df, 'power_dynamax')
                 self.target = self.extract_info(self.move_info_df, 'target')
                 self.is_additional_effects = self.extract_info(self.move_info_df, 'is_additional_effects')  #追加効果技
@@ -488,6 +496,8 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
 
     def calc_last_power(self):
         power = self.select_init_power()
+        if power == 0:
+            return 0
         factors = self.make_last_power_matched_df()['factor']
         last_power = power
         last_factor = 4096
@@ -598,6 +608,9 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         self.set_conditions()
         #各計算値をローカル変数に代入
         last_power = self.calc_last_power()
+        #威力が0の場合、0を出力
+        if last_power == 0:
+            return [0]*16
         last_atk = self.calc_last_atk()
         last_def = self.calc_last_def()
         damage_factor = self.calc_damage_factor()
