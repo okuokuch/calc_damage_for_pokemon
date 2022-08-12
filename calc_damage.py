@@ -254,14 +254,14 @@ class Move(OperateDataFrme):
                 #!!特殊な技の計算は空いた能力にも依存するケースが多いので、CalcDamgeクラスに条件を記述する。
                 self.type = self.extract_info(self.move_info_df, 'type')
                 power = self.extract_info(self.move_info_df, 'power')
-                if type(power) == int:
+                try:
                     self.power = int(power)
-                else:
+                except ValueError:
                     self.power = 0
                 power_dynamax = self.extract_info(self.move_info_df, 'power_dynamax')
-                if type(power_dynamax) == int:
-                    self.power_dynamax = power_dynamax
-                else:
+                try:
+                    self.power_dynamax = int(power_dynamax)
+                except ValueError:
                     self.power_dynamax = 0
                 self.category = self.extract_info(self.move_info_df, 'power_dynamax')
                 self.target = self.extract_info(self.move_info_df, 'target')
