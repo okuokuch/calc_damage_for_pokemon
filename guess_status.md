@@ -60,38 +60,52 @@
 パターン1についてフローチャートを考えた。その他パターンも似たフローになるはず。
 ``` mermaid
 graph TD
-	objA[自分情報]
-	objB[相手個体値と努力値<br>0-31:0+31:0-252/8の64種類]
-	objC[相手性格補正<br>3種類]
-	objD[相手とくせい<br>max3種類]
-	objE[相手情報一覧]
-	objF[ダメージ量]
-	objG[ダメージ計算結果]
-	objH[一致した条件]
-	objI[相手アイテム<br>x種類]
+	oMyInfo["自分情報<br>ステータス、攻撃技"]
+	oCondition["場の状況"]
+	oEneIV["相手BorD個体値<br>0-31(32種類)"]
+	oEneEV["相手BorD努力値<br>0-252(33種類)"]
+	oEneNat["相手性格補正<br>(3種類)"]
+	oEneStat["相手ステータス<br>(最大値~最低値の約80種類)"]
+	oEneAbi["相手とくせい<br>(max3種類)"]
+	oEneItm["相手アイテム<br>(x種類)"]
+	oEneInfo["相手情報一覧"]
+	oDam["ダメージ量"]
+	oDamRsl["ダメージ計算結果"]
+	oMoveType["攻撃技カテゴリ"]
+	oSearchRslt["一致した条件"]
+	oSearchedInfo["相手情報詳細<br>個体値、努力値、性格、アイテム、特性"]
+	
 
 	subgraph 明らかな情報
-		objA
-		objF
+		oMyInfo
+		oCondition
+		oMoveType
+		oDam
 	end
 	subgraph 明らかでない情報
-		objB
-		objC
-		objD
-		objI
+		oEneIV
+		oEneEV
+		oEneNat
+		oEneAbi
+		oEneItm
+		oEneStat
 	end
-	flowA(クロスジョイン)
-	flowB(ダメ計)
-	flowC(比較)
+	fCalcStat(ステータス計算)
+	fCrossJoin(クロスジョイン)
+	fCalcDamage(ダメ計)
+	fCompare(比較)
+	fReverseCalcStatus(逆ステータス計算)
 
-	if{相手特性でダメ計に違いが出るか}
+	ifAbility{相手特性でダメ計に違いが出るか}
 
-	if -->|yes| objD
+	oEneAbi --> ifAbility
+	oMyInfo --> oMoveType
+	 oMoveType & oEneIV & oEneEV & oEneNat -->fCalcStat --> oEneStat
 
-	objB & objC & objD & objI --> flowA --> objE
+	oEneStat  & oEneItm --> fCrossJoin --> oEneInfo
+	ifAbility -->|yes| fCrossJoin
 
-	objA & objE --> flowB -->objG
+	oCondition & oMyInfo & oEneInfo --> fCalcDamage -->oDamRsl
 
-	objF & objG --> flowC --> objH
-
+	oDam & oDamRsl --> fCompare --> oSearchRslt -->fReverseCalcStatus --> oSearchedInfo
 ```
