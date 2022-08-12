@@ -237,6 +237,22 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
             print('ステータス計算に用いる値がありません。')
             print(e.args)
     
+    def calc_max_status(self):
+        self.max_h = self.calc_hp(self.level, self.bs_h, 31, 252)
+        self.max_a = self.calc_abcds(self.level, 'a', self.bs_a, 31, 252, self.rank_a, 'いじっぱり')
+        self.max_b = self.calc_abcds(self.level, 'b', self.bs_b, 31, 252, self.rank_a, 'わんぱく')
+        self.max_c = self.calc_abcds(self.level, 'c', self.bs_c, 31, 252, self.rank_a, 'ひかえめ')
+        self.max_d = self.calc_abcds(self.level, 'd', self.bs_d, 31, 252, self.rank_a, 'しんちょう')
+        self.max_s = self.calc_abcds(self.level, 's', self.bs_s, 31, 252, self.rank_a, 'ようき')
+
+    def calc_min_status(self):
+        self.min_h = self.calc_hp(self.level, self.bs_h, 0, 0)
+        self.min_a = self.calc_abcds(self.level, 'a', self.bs_a, 0, 0, self.rank_a, 'おくびょう')
+        self.min_b = self.calc_abcds(self.level, 'b', self.bs_b, 0, 0, self.rank_a, 'さみしがり')
+        self.min_c = self.calc_abcds(self.level, 'c', self.bs_c, 0, 0, self.rank_a, 'いじっぱり')
+        self.min_d = self.calc_abcds(self.level, 'd', self.bs_d, 0, 0, self.rank_a, 'むじゃき')
+        self.min_s = self.calc_abcds(self.level, 's', self.bs_s, 0, 0, self.rank_a, 'なまいき')
+
     def reload_base_info_and_status(self):
         """基礎情報を再取得し、ステータス計算を行う。"""
         self.load_base_info()
@@ -254,14 +270,14 @@ class Move(OperateDataFrme):
                 #!!特殊な技の計算は空いた能力にも依存するケースが多いので、CalcDamgeクラスに条件を記述する。
                 self.type = self.extract_info(self.move_info_df, 'type')
                 power = self.extract_info(self.move_info_df, 'power')
-                if type(power) == int:
+                try:
                     self.power = int(power)
-                else:
+                except ValueError:
                     self.power = 0
                 power_dynamax = self.extract_info(self.move_info_df, 'power_dynamax')
-                if type(power_dynamax) == int:
-                    self.power_dynamax = power_dynamax
-                else:
+                try:
+                    self.power_dynamax = int(power_dynamax)
+                except ValueError:
                     self.power_dynamax = 0
                 self.category = self.extract_info(self.move_info_df, 'power_dynamax')
                 self.target = self.extract_info(self.move_info_df, 'target')
@@ -604,16 +620,25 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
             damage_factor = self.multiply_factor_round4_5(damage_factor, factor_i)
         return damage_factor
 
-    def calc_damage(self):
+    def calc_damage(self, last_power="", last_atk="", last_def=""):
+        """ダメージ計算をする
+        
+        最終威力、最終攻撃、最終防御を引数に設定しない場合は、インスタンス変数を使用して計算。
+        引数を指定した場合は、その値を使用して計算。
+        """
         self.set_conditions()
         #各計算値をローカル変数に代入
-        last_power = self.calc_last_power()
+        if last_power =="":
+            last_power = self.calc_last_power()
         #威力が0の場合、0を出力
         if last_power == 0:
             return [0]*16
-        last_atk = self.calc_last_atk()
-        last_def = self.calc_last_def()
+        if last_atk == "":
+            last_atk = self.calc_last_atk()
+        if last_def =="":
+            last_def = self.calc_last_def()
         damage_factor = self.calc_damage_factor()
+        print(last_power)
         #乱数の計算を格納する
         damages =[]
 

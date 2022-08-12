@@ -109,3 +109,41 @@ graph TD
 
 	oDam & oDamRsl --> fCompare --> oSearchRslt -->fReverseCalcStatus --> oSearchedInfo
 ```
+
+ダメ計～比較のフローチャート
+```mermaid
+graph TD
+	start[開始]
+	status_list["推定ステータスリスト"]
+	add_status_list("ステータスリストに追加する")
+	calc_max_min("ステータスの最大値最小値を計算する")
+	status["ステータス(max)"]
+	ini_flag["初期フラグ=False<br>計算範囲内か"]
+	calc_damage("ダメージ計算する")
+	check_damage{"ダメージが計算内か確認"}
+	flag_change(フラグをFalseからyesに変更)
+	check_flag{"フラグをチェックする"}
+	check_flag2{"フラグをチェックする"}
+	check_status{"ステータスが最小か"}
+	change_status("ステータスを-1する")
+	other_item{"ほかのアイテムがあるか"}
+	item["アイテムを選択"]
+	stop["停止"]
+
+	start --> item --> calc_damage
+	start --> ini_flag --> check_damage
+	start --> calc_max_min
+	calc_max_min --> status --> calc_damage --> check_damage
+	check_damage -->|True| add_status_list --> check_flag
+	add_status_list -.-> status_list
+	check_damage -->|False| check_flag2
+	check_flag -->|True| check_status -->|False| change_status --> calc_damage
+	check_flag -->|False| flag_change -->check_status
+	check_status -->|True| other_item
+	other_item -->|True| item
+	other_item -->|False| stop
+	status_list --> stop
+
+	check_flag2 -->|True| other_item
+	check_flag2 -->|False| check_status
+```
