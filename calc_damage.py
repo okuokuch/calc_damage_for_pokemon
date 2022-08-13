@@ -638,7 +638,6 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         if last_def =="":
             last_def = self.calc_last_def()
         damage_factor = self.calc_damage_factor()
-        print(last_power)
         #乱数の計算を格納する
         damages =[]
 
