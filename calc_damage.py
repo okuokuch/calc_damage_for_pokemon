@@ -494,6 +494,18 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         )
         return df_matched_factors
 
+    def get_ability_aura_factor(self, move_type, atk_ability, atk_friend_ability, def_ability, def_friend_ability):
+        abilities = [atk_ability, atk_friend_ability, def_ability, def_friend_ability]
+        if 'フェアリーオーラ' in abilities and move_type == '妖':
+            if 'オーラブレイク' in abilities:
+                return 3072
+            return 5448
+        if 'ダークオーラ' in abilities and move_type == '悪':
+            if 'オーラブレイク' in abilities:
+                return 3072
+            return 5448   
+        return 4096     
+
     def calc_last_power(self):
         power = self.select_init_power()
         if power == 0:
@@ -501,6 +513,11 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         factors = self.make_last_power_matched_df()['factor']
         last_power = power
         last_factor = 4096
+        last_factor = self.multiply_factor_round4_5(
+            last_factor,
+            self.get_ability_aura_factor(self.move_type, self.atk_ability, self.atk_friend_ability, self.def_ability, self.def_friend_ability)
+        )
+        print(last_factor)
         for factor_i in factors:
              last_factor = self.multiply_factor_round4_5(last_factor, factor_i)
         last_power = self.multiply_factor_round5_5(last_power, last_factor)
