@@ -253,16 +253,8 @@ class Move(OperateDataFrme):
                 #!!変化技の場合や、固定威力がない技(アシパやジャイロボール)の場合int型への変換でエラーが出る。
                 #!!特殊な技の計算は空いた能力にも依存するケースが多いので、CalcDamgeクラスに条件を記述する。
                 self.type = self.extract_info(self.move_info_df, 'type')
-                power = self.extract_info(self.move_info_df, 'power')
-                try:
-                    self.power = int(power)
-                except ValueError:
-                    self.power = 0
-                power_dynamax = self.extract_info(self.move_info_df, 'power_dynamax')
-                try:
-                    self.power_dynamax = int(power_dynamax)
-                except ValueError:
-                    self.power_dynamax = 0
+                self.power = int(self.extract_info(self.move_info_df, 'power'))
+                self.power_dynamax = int(self.extract_info(self.move_info_df, 'power_dynamax'))
                 self.category = self.extract_info(self.move_info_df, 'power_dynamax')
                 self.target = self.extract_info(self.move_info_df, 'target')
                 self.is_additional_effects = self.extract_info(self.move_info_df, 'is_additional_effects')  #追加効果技
