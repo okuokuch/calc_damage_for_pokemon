@@ -131,6 +131,16 @@ class Rank:
             magnification = 2/(2+6)
         return magnification
 
+    def count_rank_up(self, rank, count = 0):
+        if rank >=6:
+            count += 6
+            return count
+        elif rank >= 1:
+            count += rank
+            return count
+        return count
+        
+
 class Pokemon(ConvertToInt, OperateDataFrme, Rank):
     """ポケモンの情報をまとめたクラス。
     
@@ -180,6 +190,7 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
         self.rank_c = rank_c
         self.rank_d = rank_d
         self.rank_s = rank_s
+        self.total_rank_ups = self.count_ranks(self.rank_a, self.rank_b, self.rank_c, self.rank_d, self.rank_s)
         self.nature = nature
         self.ailment = ailment
         self.is_dynamax = is_dynamax
@@ -197,6 +208,14 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
             #!!初期値として''でインスタンス作成する場合のエラー出力回避
             self.ability=''
     
+    def count_ranks(self,rank_a, rank_b, rank_c, rank_d,rank_s):
+        total_rank_up = self.count_rank_up(rank_a)
+        total_rank_up = self.count_rank_up(rank_b, total_rank_up)
+        total_rank_up = self.count_rank_up(rank_c, total_rank_up)
+        total_rank_up = self.count_rank_up(rank_d, total_rank_up)
+        total_rank_up = self.count_rank_up(rank_s, total_rank_up)
+        return total_rank_up
+
     def load_base_info(self):
         """ポケモン名から、基礎情報とステータスの変更を行う。"""
         self.base_info_df = df_poke[df_poke['name'] == self.name]
@@ -536,6 +555,11 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
                 return 60     
             else:
                 return 40
+        elif move_name in move_ini.get('rank'):
+            power = 20
+            power = power + 20 * self.atk_poke.total_rank_ups
+            return power
+
         return self.move.power                
 
     def calc_last_power(self):
