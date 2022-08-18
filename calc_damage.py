@@ -1,6 +1,7 @@
 import pandas as pd
 import math
 import os
+import configparser
 
 pwd = os.getcwd()
 
@@ -18,6 +19,11 @@ df_item = pd.read_csv(pwd+'\\asset\\item.csv')
 df_field = pd.read_csv(pwd+'\\asset\\field.csv')
 df_weather = pd.read_csv(pwd+'\\asset\\weather.csv')
 df_barrier = pd.read_csv(pwd+'\\asset\\barrier.csv')
+
+#iniファイルの読み込み
+config_ini = configparser.ConfigParser()
+config_ini_path = pwd + '\\config\\config.ini'
+config_ini.read(config_ini_path, encoding='utf-8')
 
 class ConvertToInt:
     """数値を整数(Int型)に変換する
@@ -206,6 +212,7 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
             self.ability1 = self.extract_info(self.base_info_df, 'ability1')
             self.ability2 = self.extract_info(self.base_info_df, 'ability2')
             self.ability3 = self.extract_info(self.base_info_df, 'ability3')
+            self.weight = self.extract_info(self.base_info_df, 'weight')
             self.weight_move_power = self.extract_info(self.base_info_df, 'weight_move')
             self.is_fully_evolved = self.extract_info(self.base_info_df, 'is_fully_evolved')
         except IndexError as e:
@@ -250,12 +257,11 @@ class Move(OperateDataFrme):
         if self.name !='':
             #!!if文は、初期値として''を入力する場合のエラー出力回避が目的
             try:
-                #!!変化技の場合や、固定威力がない技(アシパやジャイロボール)の場合int型への変換でエラーが出る。
                 #!!特殊な技の計算は空いた能力にも依存するケースが多いので、CalcDamgeクラスに条件を記述する。
                 self.type = self.extract_info(self.move_info_df, 'type')
                 self.power = int(self.extract_info(self.move_info_df, 'power'))
                 self.power_dynamax = int(self.extract_info(self.move_info_df, 'power_dynamax'))
-                self.category = self.extract_info(self.move_info_df, 'power_dynamax')
+                self.category = self.extract_info(self.move_info_df, 'category')
                 self.target = self.extract_info(self.move_info_df, 'target')
                 self.is_additional_effects = self.extract_info(self.move_info_df, 'is_additional_effects')  #追加効果技
                 self.is_biting = self.extract_info(self.move_info_df, 'is_biting')                          #かみつき技
@@ -382,6 +388,7 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         self.weather = weather
         self.barrier = barrier
         self.is_critical = is_critical
+        self.config_ini = config_ini
         self.set_conditions()
 
     def has_flied(self, pokemon):
@@ -451,7 +458,7 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         if is_dynamax:
             power = self.move.power_dynamax
         else:
-            power = self.move.power
+            power = self.calc_power_from_status(self.move.name)
         return power
 
     def make_last_power_matched_df(self):
@@ -497,6 +504,39 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
                 return 3072
             return 5448   
         return 4096     
+
+    def calc_power_from_status(self, move_name):
+        move_ini = self.config_ini['Move']
+        if move_name in move_ini.get('faster'):
+            if self.atk_poke.status_s/self.def_poke.status_s < 1:
+                return 40
+            elif self.atk_poke.status_s/self.def_poke.status_s < 2:
+                return 60
+            elif self.atk_poke.status_s/self.def_poke.status_s < 3:
+                return 80                
+            elif self.atk_poke.status_s/self.def_poke.status_s < 4:
+                return 120     
+            else:
+                return 150    
+        elif move_name in move_ini.get('slower'):
+            power = self.floor(25*self.def_poke.status_s/self.atk_poke.status_s) + 1
+            if power > 150:
+                return 150
+            return power
+        elif move_name in move_ini.get('weight'):
+            return self.def_poke.weight_move_power
+        elif move_name in move_ini.get('heavier'):
+            if self.atk_poke.weight/self.def_poke.weight >= 5:
+                return 120
+            elif self.atk_poke.weight/self.def_poke.weight >= 4:
+                return 100
+            elif self.atk_poke.weight/self.def_poke.weight >= 3:
+                return 80                
+            elif self.atk_poke.weight/self.def_poke.weight >= 2:
+                return 60     
+            else:
+                return 40
+        return self.move.power                
 
     def calc_last_power(self):
         power = self.select_init_power()
