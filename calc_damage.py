@@ -468,21 +468,29 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         if self.move_name in move_ini['weather']:
             if self.weather_name == 'にほんばれ':
                 self.move_type = '炎'
+                self.move.type = '炎'
             elif self.weather_name == 'あめ':
                 self.move_type = '水'
+                self.move.type = '水'
             elif self.weather_name == 'すなあらし':
                 self.move_type = '岩'
+                self.move.type = '岩'
             elif self.weather_name == 'あられ':
                 self.move_type = '氷'
+                self.move.type = '氷'
         if self.move_name in move_ini['field']:
             if self.field_name == 'エレキフィールド':
                 self.move_type = '電'
+                self.move.type = '電'
             elif self.field_name == 'グラスフィールド':
                 self.move_type = '草'
+                self.move.type = '草'
             elif self.field_name == 'ミストフィールド':
                 self.move_type = '妖'
+                self.move.type = '妖'
             elif self.field_name == 'サイコフィールド':
                 self.move_type = '超'
+                self.move.type = '超'
         self.move_category = self.move.category
         self.is_additional_effects = self.move.is_additional_effects
         self.is_biting = self.move.is_biting
