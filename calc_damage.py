@@ -619,7 +619,6 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
             last_factor,
             self.get_ability_aura_factor(self.move_type, self.atk_ability, self.atk_friend_ability, self.def_ability, self.def_friend_ability)
         )
-        print(last_factor)
         for factor_i in factors:
              last_factor = self.multiply_factor_round4_5(last_factor, factor_i)
         last_power = self.multiply_factor_round5_5(last_power, last_factor)
