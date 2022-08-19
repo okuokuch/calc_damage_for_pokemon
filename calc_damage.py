@@ -140,7 +140,6 @@ class Rank:
             return count
         return count
         
-
 class Pokemon(ConvertToInt, OperateDataFrme, Rank):
     """ポケモンの情報をまとめたクラス。
     
@@ -338,6 +337,7 @@ class Barrier(OperateDataFrme):
 
 class TypeCorrection(OperateDataFrme):
     def __init__(self, move:Move, atk_poke:Pokemon, def_poke:Pokemon):
+        self.move_ini = config_ini['Move']
         self.move = move
         self.atk_poke = atk_poke
         self.def_poke = def_poke
@@ -356,8 +356,15 @@ class TypeCorrection(OperateDataFrme):
         self.def_type2 = self.def_poke.type2    
 
     def set_type_effectiveness(self):
-        self.type_effectiveness = self.calc_type_effectiveness(self.move_type, self.def_type1)
-        self.type_effectiveness *= self.calc_type_effectiveness(self.move_type, self.def_type2)
+        if self.move.name in self.move_ini['fighting_flying'] and self.atk_poke.is_dynamax == False:
+            #フライングプレスの処理を記述
+            self.type_effectiveness = self.calc_type_effectiveness('格', self.def_type1)
+            self.type_effectiveness *= self.calc_type_effectiveness('格', self.def_type2)
+            self.type_effectiveness *= self.calc_type_effectiveness('飛', self.def_type1)
+            self.type_effectiveness *= self.calc_type_effectiveness('飛', self.def_type2)
+        else:
+            self.type_effectiveness = self.calc_type_effectiveness(self.move_type, self.def_type1)
+            self.type_effectiveness *= self.calc_type_effectiveness(self.move_type, self.def_type2)
 
     def set_same_type_factor(self):
         self.same_type_factor = self.calc_same_type_factor(self.move_type, self.atk_types, self.atk_ability)
@@ -368,6 +375,13 @@ class TypeCorrection(OperateDataFrme):
         if type2 == '-':
             #タイプなしの場合(単タイプのタイプ2)、補正なしなので1を戻す。
             return 1
+        elif (
+            self.move.name in self.move_ini['water_effective'] 
+            and self.atk_poke.is_dynamax == False
+            and type2 == '水'
+        ):
+        #フリーズドライの水タイプへの処理を追加
+            return 2
         else:
             factor = self.extract_info(df_atk_type, type2)
             return factor
@@ -599,8 +613,18 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         return df_matched_factors 
 
     def calc_last_atk(self):
+        move_ini = self.config_ini['Move']
         last_factor = 4096
-        if self.move_category == '物理':
+        if self.move.name in move_ini['b_to_b'] and self.is_dynamax == False:
+            last_atk = self.atk_poke.status_b
+            factors = self.make_last_atk_matched_df()['factor_a']    
+        elif self.move.name in move_ini['ac_higher'] and self.is_dynamax == False:
+            if self.atk_poke.status_a > self.atk_poke.status_c:
+                last_atk = self.atk_poke.status_a
+            else:
+                last_atk = self.atk_poke.status_c
+            factors = self.make_last_atk_matched_df()['factor_c']
+        elif self.move_category == '物理':
             last_atk = self.atk_poke.status_a
             factors = self.make_last_atk_matched_df()['factor_a']
         else:
@@ -717,8 +741,13 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         if self.move_type == '地' and self.def_poke_has_flied == True:
             self.type_effectiveness = 0
         damages = list(map(lambda x: self.floor(x*self.type_effectiveness), damages))
+        #やけど補正
         if self.atk_ailment == 'やけど' and self.move_category =='物理':
             damages = list(map(lambda x: self.multiply_factor_round5_5(x, 2049), damages))
+        elif self.atk_ailment == 'やけど' and self.move_name in config_ini['Move']['ac_higher']:
+            #フォトンゲイザーなどでaが採用された場合にやけど補正をする。
+            if self.atk_poke.status_a > self.atk_poke.status_c:
+                damages = list(map(lambda x: self.multiply_factor_round5_5(x, 2049), damages))
         damages = list(map(lambda x: self.multiply_factor_round5_5(x, damage_factor), damages))
         #守る補正を記述する
         if damages == [0]*16 and self.type_effectiveness != 0:
