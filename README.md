@@ -12,6 +12,11 @@ calc_damage.pyとassetフォルダ内のcsvファイルを利用します。
 Jupyter Notebookに実際に使用した例を記述しているので、こちらをご覧ください。  
 https://github.com/okuokuch/calc_damage_for_pokemon/blob/main/calc_test.ipynb
 
+### jsonファイルを利用したダメ計方法
+calc_damage_from_json.pyとcalc_damage.pyとassetフォルダ内のcsvファイル、および読み込み用jsonファイルを利用しても計算が可能になりました。
+Jupyter Notebookに実際に使用した例を記述しているので、こちらをご覧ください。 
+https://github.com/okuokuch/calc_damage_for_pokemon/blob/main/test_calc_damage_from_json.ipynb
+
 # クラス図
 プログラムのおおよその内容です。
 ``` mermaid
