@@ -435,6 +435,7 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         return False
 
     def set_conditions(self):
+        move_ini = config_ini['Move']
         #ポケモン関連の変数取得
         self.is_dynamax = self.atk_poke.is_dynamax
         self.atk_poke_name = self.atk_poke.name
@@ -456,10 +457,32 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
             self.def_has_item = False
         else:
             self.def_has_item = True
-        self.def_has_item = self.def_has_item
+        self.def_has_item = self.def_has_item        
+        #場の状況関連
+        self.field_name = self.field.name
+        self.weather_name = self.weather.name
         #技関連
         self.move_name = self.move.name
         self.move_type = self.move.type
+        #技タイプ天候で技タイプがわかる場合の処理
+        if self.move_name in move_ini['weather']:
+            if self.weather_name == 'にほんばれ':
+                self.move_type = '炎'
+            elif self.weather_name == 'あめ':
+                self.move_type = '水'
+            elif self.weather_name == 'すなあらし':
+                self.move_type = '岩'
+            elif self.weather_name == 'あられ':
+                self.move_type = '氷'
+        if self.move_name in move_ini['field']:
+            if self.field_name == 'エレキフィールド':
+                self.move_type = '電'
+            elif self.field_name == 'グラスフィールド':
+                self.move_type = '草'
+            elif self.field_name == 'ミストフィールド':
+                self.move_type = '妖'
+            elif self.field_name == 'サイコフィールド':
+                self.move_type = '超'
         self.move_category = self.move.category
         self.is_additional_effects = self.move.is_additional_effects
         self.is_biting = self.move.is_biting
@@ -469,9 +492,6 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         self.is_recoil = self.move.is_recoil
         self.is_sound = self.move.is_sound
         self.is_move_effective = self.move.is_effective
-        #場の状況関連
-        self.field_name = self.field.name
-        self.weather_name = self.weather.name
         #タイプ相性関連
         type_factors = TypeCorrection(self.move, self.atk_poke, self.def_poke)
         self.type_effectiveness = type_factors.type_effectiveness
@@ -486,13 +506,14 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         self.is_critical = self.is_critical
 
     def select_init_power(self):
+        move_ini = config_ini['Move']
         """ダイマックスの有無で威力を出力する。"""
         is_dynamax = self.atk_poke.is_dynamax
         if is_dynamax:
             power = self.move.power_dynamax
+            return power
         else:
-            power = self.calc_power_from_status(self.move.name)
-        return power
+            return self.calc_power_from_status(self.move.name)
 
     def make_last_power_matched_df(self):
         self.set_conditions()
@@ -573,7 +594,10 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
             power = 20
             power = power + 20 * self.atk_poke.total_rank_ups
             return power
-
+        elif move_name in move_ini['weather'] and self.weather_name != '':
+            return 100
+        elif move_name in move_ini['field'] and self.field_name != '':
+            return 100
         return self.move.power                
 
     def calc_last_power(self):
