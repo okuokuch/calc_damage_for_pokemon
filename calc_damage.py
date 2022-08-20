@@ -2,6 +2,7 @@ import pandas as pd
 import math
 import os
 import configparser
+import numpy as np
 
 pwd = os.getcwd()
 
@@ -98,8 +99,8 @@ class OperateDataFrme:
         !!csvの書式の都合で、[検索したい値 or any]というリストを作成している。
         もっと良い仕様がありそう。
         """
-        if type(arg) == bool:
-            self.convert_boolean_to_str_list(arg)
+        if (type(arg) == bool) or (type(arg) == np.bool_):
+            return self.convert_boolean_to_str_list(arg)
         
         #bool型でなければ以下処理に移る。
         try:
