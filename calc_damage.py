@@ -284,6 +284,7 @@ class Move(OperateDataFrme):
                 self.target = self.extract_info(self.move_info_df, 'target')
                 self.is_additional_effects = self.extract_info(self.move_info_df, 'is_additional_effects')  #追加効果技
                 self.is_biting = self.extract_info(self.move_info_df, 'is_biting')                          #かみつき技
+                self.is_bomb = self.extract_info(self.move_info_df, 'is_bomb')                              #弾技
                 self.is_contact = self.extract_info(self.move_info_df, 'is_contact')                        #直接技
                 self.is_pulse = self.extract_info(self.move_info_df, 'is_pulse')                            #波動技
                 self.is_punching = self.extract_info(self.move_info_df, 'is_punching')                      #こぶし技
