@@ -160,6 +160,7 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
         rank_d=0,
         rank_s=0,
         nature="まじめ",
+        terastype="-",
         ailment="",
         is_dynamax=False,
         is_ability_effective=False,
@@ -184,6 +185,7 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
         self.rank_d = rank_d
         self.rank_s = rank_s
         self.nature = nature
+        self.terastype = terastype
         self.ailment = ailment
         self.is_dynamax = is_dynamax
         self.is_ability_effective = is_ability_effective
@@ -439,19 +441,27 @@ class TypeCorrection(OperateDataFrme):
         """タイプ相性計算に必要な変数をインスタンス変数に格納する。"""
         self.move_type = self.move.type
         self.atk_type1 = self.atk_poke.type1
-        self.atke_type2 = self.atk_poke.type2
-        self.atk_types = [self.atk_type1, self.atke_type2]
+        self.atk_type2 = self.atk_poke.type2
+        self.atk_terastype = self.atk_poke.terastype
+        self.atk_types = [self.atk_type1, self.atk_type2, self.atk_terastype]
         self.atk_ability = self.atk_poke.ability
         self.def_type1 = self.def_poke.type1
         self.def_type2 = self.def_poke.type2
+        self.def_terastype = self.def_poke.terastype
 
     def set_type_effectiveness(self):
-        self.type_effectiveness = self.calc_type_effectiveness(
-            self.move_type, self.def_type1
-        )
-        self.type_effectiveness *= self.calc_type_effectiveness(
-            self.move_type, self.def_type2
-        )
+        """防御側のテラスタルの有無に応じて、攻撃技と防御側のタイプ相性係数を計算する"""
+        if self.def_terastype != "-":
+            self.type_effectiveness = self.calc_type_effectiveness(
+                self.move_type, self.def_type1
+            )
+            self.type_effectiveness *= self.calc_type_effectiveness(
+                self.move_type, self.def_type2
+            )
+        else:
+            self.type_effectiveness = self.calc_type_effectiveness(
+                self.move_type, self.def_terastype
+            )
 
     def set_same_type_factor(self):
         self.same_type_factor = self.calc_same_type_factor(
@@ -468,14 +478,18 @@ class TypeCorrection(OperateDataFrme):
             factor = self.extract_info(df_atk_type, type2)
             return factor
 
-    def calc_same_type_factor(self, move_type, atk_types, atk_ability):
-        if move_type in atk_types:
-            if atk_ability == "てきおうりょく":
+    def calc_same_type_factor(self, move_type: str, atk_types: list, atk_ability):
+        same_type_num = atk_types.count(move_type)
+        if atk_ability == "てきおうりょく":
+            if same_type_num == 2:
+                return 9216
+            elif same_type_num == 1:
                 return 8192
-            else:
-                return 6144
-        else:
-            return 4096
+        if same_type_num == 2:
+            return 8192
+        elif same_type_num == 1:
+            return 6144
+        return 4096
 
 
 class CalcDamage(OperateDataFrme, CalcCorrectionValue):
