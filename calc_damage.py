@@ -27,11 +27,6 @@ config_ini = configparser.ConfigParser()
 config_ini_path = pwd + "\\config\\config.ini"
 config_ini.read(config_ini_path, encoding="utf-8")
 
-# iniファイルの読み込み
-config_ini = configparser.ConfigParser()
-config_ini_path = pwd + "\\config\\config.ini"
-config_ini.read(config_ini_path, encoding="utf-8")
-
 
 class ConvertToInt:
     """数値を整数(Int型)に変換する
@@ -485,28 +480,32 @@ class TypeCorrection(OperateDataFrme):
         self.def_terastype = self.def_poke.terastype
 
     def set_type_effectiveness(self):
+        """防御側のテラスタルの有無に応じて、攻撃技と防御側のタイプ相性係数を計算する"""
         if (
             self.move.name in self.move_ini["fighting_flying"]
             and not self.atk_poke.is_dynamax
         ):
             # フライングプレスの処理を記述
-            self.type_effectiveness = self.calc_type_effectiveness("格", self.def_type1)
-            self.type_effectiveness *= self.calc_type_effectiveness("格", self.def_type2)
-            self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_type1)
-            self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_type2)
+            if self.def_terastype != "-":
+                self.type_effectiveness = self.calc_type_effectiveness("格", self.def_type1)
+                self.type_effectiveness *= self.calc_type_effectiveness("格", self.def_type2)
+                self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_type1)
+                self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_type2)
+            else:
+                self.type_effectiveness = self.calc_type_effectiveness("格", self.def_terastype)
+                self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_terastype)
         else:
-            """防御側のテラスタルの有無に応じて、攻撃技と防御側のタイプ相性係数を計算する"""
-        if self.def_terastype != "-":
-            self.type_effectiveness = self.calc_type_effectiveness(
-                self.move_type, self.def_type1
-            )
-            self.type_effectiveness *= self.calc_type_effectiveness(
-                self.move_type, self.def_type2
-            )
-        else:
-            self.type_effectiveness = self.calc_type_effectiveness(
-                self.move_type, self.def_terastype
-            )
+            if self.def_terastype != "-":
+                self.type_effectiveness = self.calc_type_effectiveness(
+                    self.move_type, self.def_type1
+                )
+                self.type_effectiveness *= self.calc_type_effectiveness(
+                    self.move_type, self.def_type2
+                )
+            else:
+                self.type_effectiveness = self.calc_type_effectiveness(
+                    self.move_type, self.def_terastype
+                )
 
     def set_same_type_factor(self):
         self.same_type_factor = self.calc_same_type_factor(
