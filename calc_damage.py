@@ -229,8 +229,7 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
     def calc_abcds(self, level, status, bs, iv, ev, rank, nature):
         nature_factor = df_nature[df_nature["name"] == nature][status].values[0]
         base_status = self.floor(
-            (self.floor((bs * 2 + iv + self.floor(ev / 4)) * level / 100 + 5))
-            * nature_factor
+            (self.floor((bs * 2 + iv + self.floor(ev / 4)) * level / 100 + 5)) * nature_factor
         )
         rank_factor = self.make_rank_magnification(rank)
         return self.floor(base_status * rank_factor)
