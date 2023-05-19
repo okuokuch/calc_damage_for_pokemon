@@ -1,6 +1,8 @@
 import pandas as pd
 import math
 import os
+import configparser
+import numpy as np
 
 pwd = os.getcwd()
 
@@ -19,6 +21,16 @@ df_field = pd.read_csv(pwd + "\\asset\\field.csv")
 df_weather = pd.read_csv(pwd + "\\asset\\weather.csv")
 df_barrier = pd.read_csv(pwd + "\\asset\\barrier.csv")
 
+
+#iniファイルの読み込み
+config_ini = configparser.ConfigParser()
+config_ini_path = pwd + '\\config\\config.ini'
+config_ini.read(config_ini_path, encoding='utf-8')
+
+#iniファイルの読み込み
+config_ini = configparser.ConfigParser()
+config_ini_path = pwd + '\\config\\config.ini'
+config_ini.read(config_ini_path, encoding='utf-8')
 
 class ConvertToInt:
     """数値を整数(Int型)に変換する
@@ -97,10 +109,10 @@ class OperateDataFrme:
         !!csvの書式の都合で、[検索したい値 or any]というリストを作成している。
         もっと良い仕様がありそう。
         """
-        if type(arg) == bool:
-            self.convert_boolean_to_str_list(arg)
-
-        # bool型でなければ以下処理に移る。
+        if (type(arg) == bool) or (type(arg) == np.bool_):
+            return self.convert_boolean_to_str_list(arg)
+        
+        #bool型でなければ以下処理に移る。
         try:
             return [arg, "any"]
         except AttributeError:
@@ -134,7 +146,15 @@ class Rank:
             magnification = 2 / (2 + 6)
         return magnification
 
-
+    def count_rank_up(self, rank, count = 0):
+        if rank >=6:
+            count += 6
+            return count
+        elif rank >= 1:
+            count += rank
+            return count
+        return count
+        
 class Pokemon(ConvertToInt, OperateDataFrme, Rank):
     """ポケモンの情報をまとめたクラス。"""
 
@@ -184,6 +204,7 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
         self.rank_c = rank_c
         self.rank_d = rank_d
         self.rank_s = rank_s
+        self.total_rank_ups = self.count_ranks(self.rank_a, self.rank_b, self.rank_c, self.rank_d, self.rank_s)
         self.nature = nature
         self.terastype = terastype
         self.ailment = ailment
@@ -199,28 +220,35 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
                 print(e.args)
                 self.ability = ""
         else:
-            # !!初期値として''でインスタンス作成する場合のエラー出力回避
-            self.ability = ""
+            #!!初期値として''でインスタンス作成する場合のエラー出力回避
+            self.ability=''
+    
+    def count_ranks(self,rank_a, rank_b, rank_c, rank_d,rank_s):
+        total_rank_up = self.count_rank_up(rank_a)
+        total_rank_up = self.count_rank_up(rank_b, total_rank_up)
+        total_rank_up = self.count_rank_up(rank_c, total_rank_up)
+        total_rank_up = self.count_rank_up(rank_d, total_rank_up)
+        total_rank_up = self.count_rank_up(rank_s, total_rank_up)
+        return total_rank_up
 
     def load_base_info(self):
         """ポケモン名から、基礎情報とステータスの変更を行う。"""
         self.base_info_df = df_poke[df_poke["name"] == self.name]
         try:
-            self.bs_h = self.extract_info(self.base_info_df, "hp")
-            self.bs_a = self.extract_info(self.base_info_df, "a")
-            self.bs_b = self.extract_info(self.base_info_df, "b")
-            self.bs_c = self.extract_info(self.base_info_df, "c")
-            self.bs_d = self.extract_info(self.base_info_df, "d")
-            self.bs_s = self.extract_info(self.base_info_df, "s")
-            self.type1 = self.extract_info(self.base_info_df, "type1")
-            self.type2 = self.extract_info(self.base_info_df, "type2")
-            self.ability1 = self.extract_info(self.base_info_df, "ability1")
-            self.ability2 = self.extract_info(self.base_info_df, "ability2")
-            self.ability3 = self.extract_info(self.base_info_df, "ability3")
-            self.weight_move_power = self.extract_info(self.base_info_df, "weight_move")
-            self.is_fully_evolved = self.extract_info(
-                self.base_info_df, "is_fully_evolved"
-            )
+            self.bs_h = self.extract_info(self.base_info_df, 'hp')
+            self.bs_a = self.extract_info(self.base_info_df, 'a')
+            self.bs_b = self.extract_info(self.base_info_df, 'b')
+            self.bs_c = self.extract_info(self.base_info_df, 'c')
+            self.bs_d = self.extract_info(self.base_info_df, 'd')
+            self.bs_s = self.extract_info(self.base_info_df, 's')
+            self.type1 = self.extract_info(self.base_info_df, 'type1')
+            self.type2 = self.extract_info(self.base_info_df, 'type2')
+            self.ability1 = self.extract_info(self.base_info_df, 'ability1')
+            self.ability2 = self.extract_info(self.base_info_df, 'ability2')
+            self.ability3 = self.extract_info(self.base_info_df, 'ability3')
+            self.weight = self.extract_info(self.base_info_df, 'weight')
+            self.weight_move_power = self.extract_info(self.base_info_df, 'weight_move')
+            self.is_fully_evolved = self.extract_info(self.base_info_df, 'is_fully_evolved')
         except IndexError as e:
             print("ポケモンの基礎データを取得できませんでした。")
             print(e.args)
@@ -341,10 +369,9 @@ class Move(OperateDataFrme):
         if self.name != "":
             # !!if文は、初期値として''を入力する場合のエラー出力回避が目的
             try:
-                # !!変化技の場合や、固定威力がない技(アシパやジャイロボール)の場合int型への変換でエラーが出る。
-                # !!特殊な技の計算は空いた能力にも依存するケースが多いので、CalcDamgeクラスに条件を記述する。
-                self.type = self.extract_info(self.move_info_df, "type")
-                power = self.extract_info(self.move_info_df, "power")
+                #!!特殊な技の計算は空いた能力にも依存するケースが多いので、CalcDamgeクラスに条件を記述する。
+                self.type = self.extract_info(self.move_info_df, 'type')
+                power = self.extract_info(self.move_info_df, 'power')
                 try:
                     self.power = int(power)
                 except ValueError:
@@ -430,6 +457,7 @@ class Barrier(OperateDataFrme):
 
 class TypeCorrection(OperateDataFrme):
     def __init__(self, move: Move, atk_poke: Pokemon, def_poke: Pokemon):
+        self.move_ini = config_ini['Move']
         self.move = move
         self.atk_poke = atk_poke
         self.def_poke = def_poke
@@ -450,7 +478,14 @@ class TypeCorrection(OperateDataFrme):
         self.def_terastype = self.def_poke.terastype
 
     def set_type_effectiveness(self):
-        """防御側のテラスタルの有無に応じて、攻撃技と防御側のタイプ相性係数を計算する"""
+        if self.move.name in self.move_ini['fighting_flying'] and self.atk_poke.is_dynamax == False:
+            #フライングプレスの処理を記述
+            self.type_effectiveness = self.calc_type_effectiveness('格', self.def_type1)
+            self.type_effectiveness *= self.calc_type_effectiveness('格', self.def_type2)
+            self.type_effectiveness *= self.calc_type_effectiveness('飛', self.def_type1)
+            self.type_effectiveness *= self.calc_type_effectiveness('飛', self.def_type2)
+        else:
+            """防御側のテラスタルの有無に応じて、攻撃技と防御側のタイプ相性係数を計算する"""
         if self.def_terastype != "-":
             self.type_effectiveness = self.calc_type_effectiveness(
                 self.move_type, self.def_type1
@@ -474,6 +509,13 @@ class TypeCorrection(OperateDataFrme):
         if type2 == "-":
             # タイプなしの場合(単タイプのタイプ2)、補正なしなので1を戻す。
             return 1
+        elif (
+            self.move.name in self.move_ini['water_effective'] 
+            and self.atk_poke.is_dynamax == False
+            and type2 == '水'
+        ):
+        #フリーズドライの水タイプへの処理を追加
+            return 2
         else:
             factor = self.extract_info(df_atk_type, type2)
             return factor
@@ -518,6 +560,7 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         self.weather = weather
         self.barrier = barrier
         self.is_critical = is_critical
+        self.config_ini = config_ini
         self.set_conditions()
 
     def has_flied(self, pokemon):
@@ -531,6 +574,7 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         return False
 
     def set_conditions(self):
+        move_ini = config_ini['Move']
         # ポケモン関連の変数取得
         self.is_dynamax = self.atk_poke.is_dynamax
         self.atk_poke_name = self.atk_poke.name
@@ -552,10 +596,40 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
             self.def_has_item = False
         else:
             self.def_has_item = True
-        self.def_has_item = self.def_has_item
+        self.def_has_item = self.def_has_item        
+        # 場の状況関連
+        self.field_name = self.field.name
+        self.weather_name = self.weather.name
         # 技関連
         self.move_name = self.move.name
         self.move_type = self.move.type
+        #技タイプ天候で技タイプがわかる場合の処理
+        if self.move_name in move_ini['weather']:
+            if self.weather_name == 'にほんばれ':
+                self.move_type = '炎'
+                self.move.type = '炎'
+            elif self.weather_name == 'あめ':
+                self.move_type = '水'
+                self.move.type = '水'
+            elif self.weather_name == 'すなあらし':
+                self.move_type = '岩'
+                self.move.type = '岩'
+            elif self.weather_name == 'あられ':
+                self.move_type = '氷'
+                self.move.type = '氷'
+        if self.move_name in move_ini['field']:
+            if self.field_name == 'エレキフィールド':
+                self.move_type = '電'
+                self.move.type = '電'
+            elif self.field_name == 'グラスフィールド':
+                self.move_type = '草'
+                self.move.type = '草'
+            elif self.field_name == 'ミストフィールド':
+                self.move_type = '妖'
+                self.move.type = '妖'
+            elif self.field_name == 'サイコフィールド':
+                self.move_type = '超'
+                self.move.type = '超'
         self.move_category = self.move.category
         self.is_additional_effects = self.move.is_additional_effects
         self.is_biting = self.move.is_biting
@@ -565,9 +639,6 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         self.is_recoil = self.move.is_recoil
         self.is_sound = self.move.is_sound
         self.is_move_effective = self.move.is_effective
-        # 場の状況関連
-        self.field_name = self.field.name
-        self.weather_name = self.weather.name
         # タイプ相性関連
         type_factors = TypeCorrection(self.move, self.atk_poke, self.def_poke)
         self.type_effectiveness = type_factors.type_effectiveness
@@ -582,13 +653,14 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         self.is_critical = self.is_critical
 
     def select_init_power(self):
+        move_ini = config_ini['Move']
         """ダイマックスの有無で威力を出力する。"""
         is_dynamax = self.atk_poke.is_dynamax
         if is_dynamax:
             power = self.move.power_dynamax
+            return power
         else:
-            power = self.move.power
-        return power
+            return self.calc_power_from_status(self.move.name)
 
     def make_last_power_matched_df(self):
         self.set_conditions()
@@ -622,6 +694,59 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         )
         return df_matched_factors
 
+    def get_ability_aura_factor(self, move_type, atk_ability, atk_friend_ability, def_ability, def_friend_ability):
+        abilities = [atk_ability, atk_friend_ability, def_ability, def_friend_ability]
+        if 'フェアリーオーラ' in abilities and move_type == '妖':
+            if 'オーラブレイク' in abilities:
+                return 3072
+            return 5448
+        if 'ダークオーラ' in abilities and move_type == '悪':
+            if 'オーラブレイク' in abilities:
+                return 3072
+            return 5448   
+        return 4096     
+
+    def calc_power_from_status(self, move_name):
+        move_ini = self.config_ini['Move']
+        if move_name in move_ini.get('faster'):
+            if self.atk_poke.status_s/self.def_poke.status_s < 1:
+                return 40
+            elif self.atk_poke.status_s/self.def_poke.status_s < 2:
+                return 60
+            elif self.atk_poke.status_s/self.def_poke.status_s < 3:
+                return 80                
+            elif self.atk_poke.status_s/self.def_poke.status_s < 4:
+                return 120     
+            else:
+                return 150    
+        elif move_name in move_ini.get('slower'):
+            power = self.floor(25*self.def_poke.status_s/self.atk_poke.status_s) + 1
+            if power > 150:
+                return 150
+            return power
+        elif move_name in move_ini.get('weight'):
+            return self.def_poke.weight_move_power
+        elif move_name in move_ini.get('heavier'):
+            if self.atk_poke.weight/self.def_poke.weight >= 5:
+                return 120
+            elif self.atk_poke.weight/self.def_poke.weight >= 4:
+                return 100
+            elif self.atk_poke.weight/self.def_poke.weight >= 3:
+                return 80                
+            elif self.atk_poke.weight/self.def_poke.weight >= 2:
+                return 60     
+            else:
+                return 40
+        elif move_name in move_ini.get('rank'):
+            power = 20
+            power = power + 20 * self.atk_poke.total_rank_ups
+            return power
+        elif move_name in move_ini['weather'] and self.weather_name != '':
+            return 100
+        elif move_name in move_ini['field'] and self.field_name != '':
+            return 100
+        return self.move.power                
+
     def calc_last_power(self):
         power = self.select_init_power()
         if power == 0:
@@ -629,6 +754,10 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         factors = self.make_last_power_matched_df()["factor"]
         last_power = power
         last_factor = 4096
+        last_factor = self.multiply_factor_round4_5(
+            last_factor,
+            self.get_ability_aura_factor(self.move_type, self.atk_ability, self.atk_friend_ability, self.def_ability, self.def_friend_ability)
+        )
         for factor_i in factors:
             last_factor = self.multiply_factor_round4_5(last_factor, factor_i)
         last_power = self.multiply_factor_round5_5(last_power, last_factor)
@@ -654,8 +783,18 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         return df_matched_factors
 
     def calc_last_atk(self):
+        move_ini = self.config_ini['Move']
         last_factor = 4096
-        if self.move_category == "物理":
+        if self.move.name in move_ini['b_to_b'] and self.is_dynamax == False:
+            last_atk = self.atk_poke.status_b
+            factors = self.make_last_atk_matched_df()['factor_a']    
+        elif self.move.name in move_ini['ac_higher'] and self.is_dynamax == False:
+            if self.atk_poke.status_a > self.atk_poke.status_c:
+                last_atk = self.atk_poke.status_a
+            else:
+                last_atk = self.atk_poke.status_c
+            factors = self.make_last_atk_matched_df()['factor_c']
+        elif self.move_category == '物理':
             last_atk = self.atk_poke.status_a
             factors = self.make_last_atk_matched_df()["factor_a"]
         else:
@@ -784,15 +923,16 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         # タイプ相性計算
         if self.move_type == "地" and self.def_poke_has_flied:
             self.type_effectiveness = 0
-        damages = list(map(lambda x: self.floor(x * self.type_effectiveness), damages))
-        if self.atk_ailment == "やけど" and self.move_category == "物理":
-            damages = list(
-                map(lambda x: self.multiply_factor_round5_5(x, 2049), damages)
-            )
-        damages = list(
-            map(lambda x: self.multiply_factor_round5_5(x, damage_factor), damages)
-        )
-        # 守る補正を記述する
-        if damages == [0] * 16 and self.type_effectiveness != 0:
-            damages = [1] * 16
+        damages = list(map(lambda x: self.floor(x*self.type_effectiveness), damages))
+        #やけど補正
+        if self.atk_ailment == 'やけど' and self.move_category =='物理':
+            damages = list(map(lambda x: self.multiply_factor_round5_5(x, 2049), damages))
+        elif self.atk_ailment == 'やけど' and self.move_name in config_ini['Move']['ac_higher']:
+            #フォトンゲイザーなどでaが採用された場合にやけど補正をする。
+            if self.atk_poke.status_a > self.atk_poke.status_c:
+                damages = list(map(lambda x: self.multiply_factor_round5_5(x, 2049), damages))
+        damages = list(map(lambda x: self.multiply_factor_round5_5(x, damage_factor), damages))
+        #守る補正を記述する
+        if damages == [0]*16 and self.type_effectiveness != 0:
+            damages = [1]*16
         return damages

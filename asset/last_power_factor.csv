@@ -1,9 +1,5 @@
 ﻿atk_ability,atk_friend_ability,def_ability,atk_item,def_has_item,atk_poke,atk_poke_has_flied,def_poke_has_flied,move_name,move_type,move_category,is_additional_effects,is_biting,is_contact,is_pulse,is_punching,is_recoil,is_sound,atk_ailment,def_ailment,field_name,weather_name,is_ability_effective,is_move_effective,is_dynamax,factor
 any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,4096
-ダークオーラ,any,オーラブレイク,any,any,any,any,any,any,悪,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,3072
-any,ダークオーラ,オーラブレイク,any,any,any,any,any,any,悪,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,3072
-フェアリーオーラ,any,オーラブレイク,any,any,any,any,any,any,妖,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,3072
-any,フェアリーオーラ,オーラブレイク,any,any,any,any,any,any,妖,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,3072
 エレキスキン,any,any,any,any,any,any,any,any,ノ,any,any,any,any,any,any,any,any,any,any,any,any,any,any,FALSE,4915
 スカイスキン,any,any,any,any,any,any,any,any,ノ,any,any,any,any,any,any,any,any,any,any,any,any,any,any,FALSE,4915
 ノーマルスキン,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,FALSE,4915
@@ -20,12 +16,6 @@ any,バッテリー,any,any,any,any,any,any,any,any,特殊,any,any,any,any,any,a
 かたいツメ,any,any,any,any,any,any,any,any,any,any,any,any,TRUE,any,any,any,any,any,any,any,any,any,any,FALSE,5325
 パンクロック,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,TRUE,any,any,any,any,any,any,FALSE,5325
 any,パワースポット,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,5325
-フェアリーオーラ,any,any,any,any,any,any,any,any,妖,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,5448
-any,フェアリーオーラ,any,any,any,any,any,any,any,妖,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,5448
-any,any,フェアリーオーラ,any,any,any,any,any,any,妖,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,5448
-ダークオーラ,any,any,any,any,any,any,any,any,悪,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,5448
-any,ダークオーラ,any,any,any,any,any,any,any,悪,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,5448
-any,any,ダークオーラ,any,any,any,any,any,any,悪,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,5448
 テクニシャン,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,any,TRUE,any,6144
 ねつぼうそう,any,any,any,any,any,any,any,any,any,特殊,any,any,any,any,any,any,any,やけど,any,any,any,any,any,any,6144
 どくぼうそう,any,any,any,any,any,any,any,any,any,物理,any,any,any,any,any,any,any,どく,any,any,any,any,any,any,6144
