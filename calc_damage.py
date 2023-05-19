@@ -177,6 +177,7 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
         rank_d=0,
         rank_s=0,
         nature="まじめ",
+        ability="",
         terastype="-",
         ailment="",
         is_dynamax=False,
@@ -221,6 +222,8 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
         else:
             # !!初期値として''でインスタンス作成する場合のエラー出力回避
             self.ability = ""
+        if ability != "":
+            self.ability = ability
 
     def count_ranks(self, rank_a, rank_b, rank_c, rank_d, rank_s):
         total_rank_up = self.count_rank_up(rank_a)
@@ -383,7 +386,7 @@ class Move(OperateDataFrme):
                     self.power_dynamax = int(power_dynamax)
                 except ValueError:
                     self.power_dynamax = 0
-                self.category = self.extract_info(self.move_info_df, "power_dynamax")
+                self.category = self.extract_info(self.move_info_df, "category")
                 self.target = self.extract_info(self.move_info_df, "target")
                 self.is_additional_effects = self.extract_info(
                     self.move_info_df, "is_additional_effects"
