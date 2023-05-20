@@ -769,7 +769,9 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         power = self.select_init_power()
         if power == 0:
             return 0
-        factors = self.make_last_power_matched_df()["factor"]
+        factors: np = self.make_last_power_matched_df()["factor"]
+        if np.any(factors == 0):
+            return 0
         last_power = power
         last_factor = 4096
         last_factor = self.multiply_factor_round4_5(
@@ -837,6 +839,7 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         self.set_conditions()
         df_matched_factors = self.make_matched_df(
             df_last_def_factor,
+            atk_ability=self.atk_ability,
             def_ability=self.def_ability,
             def_item=self.def_item_name,
             def_poke=self.def_poke_name,
@@ -945,8 +948,6 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
             )
         )
         # タイプ相性計算
-        if self.move_type == "地" and self.def_poke_has_flied:
-            self.type_effectiveness = 0
         damages = list(map(lambda x: self.floor(x * self.type_effectiveness), damages))
         # やけど補正
         if self.atk_ailment == "やけど" and self.move_category == "物理":
