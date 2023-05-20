@@ -489,7 +489,7 @@ class TypeCorrection(OperateDataFrme):
             and not self.atk_poke.is_dynamax
         ):
             # フライングプレスの処理を記述
-            if self.def_terastype != "-":
+            if self.def_terastype == "-":
                 self.type_effectiveness = self.calc_type_effectiveness("格", self.def_type1)
                 self.type_effectiveness *= self.calc_type_effectiveness("格", self.def_type2)
                 self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_type1)
@@ -498,7 +498,7 @@ class TypeCorrection(OperateDataFrme):
                 self.type_effectiveness = self.calc_type_effectiveness("格", self.def_terastype)
                 self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_terastype)
         else:
-            if self.def_terastype != "-":
+            if self.def_terastype == "-":
                 self.type_effectiveness = self.calc_type_effectiveness(
                     self.move_type, self.def_type1
                 )
