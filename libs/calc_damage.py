@@ -368,7 +368,7 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
 class Move(OperateDataFrme):
     """技の情報をまとめたクラス。"""
 
-    def __init__(self, name, is_effective=True):
+    def __init__(self, name, is_effective=False):
         self.name = name
         self.move_info_df = df_move[df_move["name"] == self.name]
         if self.name != "":
@@ -490,13 +490,25 @@ class TypeCorrection(OperateDataFrme):
         ):
             # フライングプレスの処理を記述
             if self.def_terastype == "-":
-                self.type_effectiveness = self.calc_type_effectiveness("格", self.def_type1)
-                self.type_effectiveness *= self.calc_type_effectiveness("格", self.def_type2)
-                self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_type1)
-                self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_type2)
+                self.type_effectiveness = self.calc_type_effectiveness(
+                    "格", self.def_type1
+                )
+                self.type_effectiveness *= self.calc_type_effectiveness(
+                    "格", self.def_type2
+                )
+                self.type_effectiveness *= self.calc_type_effectiveness(
+                    "飛", self.def_type1
+                )
+                self.type_effectiveness *= self.calc_type_effectiveness(
+                    "飛", self.def_type2
+                )
             else:
-                self.type_effectiveness = self.calc_type_effectiveness("格", self.def_terastype)
-                self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_terastype)
+                self.type_effectiveness = self.calc_type_effectiveness(
+                    "格", self.def_terastype
+                )
+                self.type_effectiveness *= self.calc_type_effectiveness(
+                    "飛", self.def_terastype
+                )
         else:
             if self.def_terastype == "-":
                 self.type_effectiveness = self.calc_type_effectiveness(
@@ -575,7 +587,7 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         self.config_ini = config_ini
         self.set_conditions()
 
-    def has_flied(self, pokemon):
+    def has_flied(self, pokemon: Pokemon):
         """浮いているポケモンかの判定"""
         if pokemon.type1 == "飛":
             return True
