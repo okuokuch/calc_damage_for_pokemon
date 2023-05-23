@@ -4,27 +4,28 @@ import os
 import configparser
 import numpy as np
 
-pwd = os.getcwd()
+origin_file_path = os.path.join(os.path.dirname(__file__), "../")
+origin_file_path = os.path.normpath(origin_file_path)
 
 # csvは完成してません。
-df_poke = pd.read_csv(pwd + "\\asset\\poke.csv")
-df_move = pd.read_csv(pwd + "\\asset\\move.csv")  # 追加効果はやけどまで。
-df_nature = pd.read_csv(pwd + "\\asset\\nature.csv")
-df_type = pd.read_csv(pwd + "\\asset\\type.csv")
-df_last_power_factor = pd.read_csv(pwd + "\\asset\\last_power_factor.csv")
-df_last_atk_factor = pd.read_csv(pwd + "\\asset\\last_atk_factor.csv")
-df_last_def_factor = pd.read_csv(pwd + "\\asset\\last_def_factor.csv")
-df_damage_factor = pd.read_csv(pwd + "\\asset\\damage_factor.csv")
-df_weather_factor = pd.read_csv(pwd + "\\asset\\weather_factor.csv")
-df_item = pd.read_csv(pwd + "\\asset\\item.csv")
-df_field = pd.read_csv(pwd + "\\asset\\field.csv")
-df_weather = pd.read_csv(pwd + "\\asset\\weather.csv")
-df_barrier = pd.read_csv(pwd + "\\asset\\barrier.csv")
+df_poke = pd.read_csv(origin_file_path + "\\asset\\poke.csv")
+df_move = pd.read_csv(origin_file_path + "\\asset\\move.csv")  # 追加効果はやけどまで。
+df_nature = pd.read_csv(origin_file_path + "\\asset\\nature.csv")
+df_type = pd.read_csv(origin_file_path + "\\asset\\type.csv")
+df_last_power_factor = pd.read_csv(origin_file_path + "\\asset\\last_power_factor.csv")
+df_last_atk_factor = pd.read_csv(origin_file_path + "\\asset\\last_atk_factor.csv")
+df_last_def_factor = pd.read_csv(origin_file_path + "\\asset\\last_def_factor.csv")
+df_damage_factor = pd.read_csv(origin_file_path + "\\asset\\damage_factor.csv")
+df_weather_factor = pd.read_csv(origin_file_path + "\\asset\\weather_factor.csv")
+df_item = pd.read_csv(origin_file_path + "\\asset\\item.csv")
+df_field = pd.read_csv(origin_file_path + "\\asset\\field.csv")
+df_weather = pd.read_csv(origin_file_path + "\\asset\\weather.csv")
+df_barrier = pd.read_csv(origin_file_path + "\\asset\\barrier.csv")
 
 
 # iniファイルの読み込み
 config_ini = configparser.ConfigParser()
-config_ini_path = pwd + "\\config\\config.ini"
+config_ini_path = origin_file_path + "\\config\\config.ini"
 config_ini.read(config_ini_path, encoding="utf-8")
 
 
@@ -368,7 +369,7 @@ class Pokemon(ConvertToInt, OperateDataFrme, Rank):
 class Move(OperateDataFrme):
     """技の情報をまとめたクラス。"""
 
-    def __init__(self, name, is_effective=True):
+    def __init__(self, name, is_effective=False):
         self.name = name
         self.move_info_df = df_move[df_move["name"] == self.name]
         if self.name != "":
@@ -490,13 +491,25 @@ class TypeCorrection(OperateDataFrme):
         ):
             # フライングプレスの処理を記述
             if self.def_terastype == "-":
-                self.type_effectiveness = self.calc_type_effectiveness("格", self.def_type1)
-                self.type_effectiveness *= self.calc_type_effectiveness("格", self.def_type2)
-                self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_type1)
-                self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_type2)
+                self.type_effectiveness = self.calc_type_effectiveness(
+                    "格", self.def_type1
+                )
+                self.type_effectiveness *= self.calc_type_effectiveness(
+                    "格", self.def_type2
+                )
+                self.type_effectiveness *= self.calc_type_effectiveness(
+                    "飛", self.def_type1
+                )
+                self.type_effectiveness *= self.calc_type_effectiveness(
+                    "飛", self.def_type2
+                )
             else:
-                self.type_effectiveness = self.calc_type_effectiveness("格", self.def_terastype)
-                self.type_effectiveness *= self.calc_type_effectiveness("飛", self.def_terastype)
+                self.type_effectiveness = self.calc_type_effectiveness(
+                    "格", self.def_terastype
+                )
+                self.type_effectiveness *= self.calc_type_effectiveness(
+                    "飛", self.def_terastype
+                )
         else:
             if self.def_terastype == "-":
                 self.type_effectiveness = self.calc_type_effectiveness(
@@ -575,7 +588,7 @@ class CalcDamage(OperateDataFrme, CalcCorrectionValue):
         self.config_ini = config_ini
         self.set_conditions()
 
-    def has_flied(self, pokemon):
+    def has_flied(self, pokemon: Pokemon):
         """浮いているポケモンかの判定"""
         if pokemon.type1 == "飛":
             return True
