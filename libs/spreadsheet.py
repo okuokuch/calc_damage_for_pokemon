@@ -1,5 +1,9 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import os
+
+origin_file_path = os.path.join(os.path.dirname(__file__), "../")
+origin_file_path = os.path.normpath(origin_file_path)
 
 
 class SpreadSheet:
@@ -9,7 +13,7 @@ class SpreadSheet:
             "https://www.googleapis.com/auth/drive",
         ]
         self.creds = ServiceAccountCredentials.from_json_keyfile_name(
-            "./config/client_secret.json", self.SCOPE
+            origin_file_path + "/config/client_secret.json", self.SCOPE
         )
         self.client = gspread.authorize(self.creds)
         self.workbook = self.client.open(book_name)
