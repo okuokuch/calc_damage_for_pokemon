@@ -1,6 +1,10 @@
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from libs.calc_damage import Pokemon, Move, Item, CalcDamage
 
 
@@ -67,6 +71,53 @@ def set_enemy_data(pokemon_dict):
     )
     move = Move(pokemon_dict["move"])
     return pokemon_0, pokemon_252, pokemon_252up, move
+
+
+def set_def_data(pokemon_dict):
+    pokemon_0 = Pokemon(name=pokemon_dict["pokemon"], ability=pokemon_dict["Ability"])
+    pokemon_h252bd0 = Pokemon(
+        name=pokemon_dict["pokemon"],
+        ability=pokemon_dict["Ability"],
+        ev_h=252,
+        ev_a=252,
+        ev_b=0,
+        ev_c=252,
+        ev_d=0,
+        ev_s=252,
+    )
+    pokemon_h0bd252 = Pokemon(
+        name=pokemon_dict["pokemon"],
+        ability=pokemon_dict["Ability"],
+        ev_h=0,
+        ev_a=252,
+        ev_b=252,
+        ev_c=252,
+        ev_d=252,
+        ev_s=252,
+    )
+    pokemon_252 = Pokemon(
+        name=pokemon_dict["pokemon"],
+        ability=pokemon_dict["Ability"],
+        ev_h=252,
+        ev_a=252,
+        ev_b=252,
+        ev_c=252,
+        ev_d=252,
+        ev_s=252,
+    )
+    pokemon_252up = Pokemon(
+        name=pokemon_dict["pokemon"],
+        ability=pokemon_dict["Ability"],
+        ev_h=252,
+        ev_a=252,
+        ev_b=252,
+        ev_c=252,
+        ev_d=252,
+        ev_s=252,
+        nature="上昇",
+    )
+    move = Move(pokemon_dict["move"])
+    return pokemon_0, pokemon_h252bd0, pokemon_h0bd252, pokemon_252, pokemon_252up, move
 
 
 def calc_min_max_damage_raito(calc_data: CalcDamage):
@@ -166,3 +217,36 @@ def extract_pokemon_ability_df(df_enemy: pd.DataFrame):
                 ]
             )
     return output_list
+
+
+def make_calc_data(pokemon_list, pokemon_def_list):
+    """ポケモン情報から攻め受け全対応のダメ計計算結果を出力する"""
+    output_data = []
+    for atk_poke_dict in tqdm(pokemon_list, desc="相手ポケモンからのダメージ計算"):
+        atk_pokemon_0, atk_pokemon_252, atk_pokemon_252up, move = set_enemy_data(
+            atk_poke_dict
+        )
+        output_one_data = [atk_pokemon_0.name, atk_pokemon_0.ability, move.name]
+        for def_poke_dict in pokemon_def_list:
+            (
+                def_pokemon_0,
+                def_pokemon_h252bd0,
+                def_pokemon_h0bd252,
+                def_pokemon_252,
+                def_pokemon_252up,
+                move_a,
+            ) = set_def_data(def_poke_dict)
+            output_one_data.extend([def_pokemon_0.name, def_pokemon_0.ability])
+            for atk_pokemon in [atk_pokemon_0, atk_pokemon_252, atk_pokemon_252up]:
+                for def_pokemon in [
+                    def_pokemon_0,
+                    def_pokemon_h252bd0,
+                    def_pokemon_h0bd252,
+                    def_pokemon_252,
+                    def_pokemon_252up,
+                ]:
+                    calc = CalcDamage(move, atk_pokemon, def_pokemon)
+                    output_one_data.extend(calc_min_max_damage_raito(calc))
+            output_data.append(output_one_data)
+            output_one_data = output_one_data[0:3]
+    return output_data
